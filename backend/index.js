@@ -17,7 +17,10 @@ const bootstrap = async () => {
 
   // Use the main router
   app.use(routes);
-
+  app.get("/", (req, res) => {
+    res.set("Content-Type", "application/json");
+    res.send({ content: "Hello, world!" });
+  });
   // unexpected  router hit shows error
   app.all("*", (req, res, next) => {
     next(
