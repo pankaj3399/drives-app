@@ -1,0 +1,23 @@
+.calc {
+    padding-left: 30px;
+}
+
+.container {}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    width: 200px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+div {
+    font-size: 18px;
+    font-weight: bold;
+}

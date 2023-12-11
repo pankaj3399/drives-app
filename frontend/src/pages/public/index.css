@@ -1,0 +1,72 @@
+.calc {
+    padding-left: 30px;
+}
+
+.container {}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    width: 200px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+div {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+/* --------------------------------------- */
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    /* Distribute items along the row with space between them */
+    align-items: center;
+    /* Align items vertically in the center of the container */
+}
+
+.dbtn {
+    /* Add your styles for the button container here */
+    margin-left: auto;
+    /* Push the button to the end of the row */
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+th,
+td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    background-color: black;
+}
+
+
+/* Styling the dropdowns */
+
+select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+tbody tr {
+    margin-bottom: 10px;
+}

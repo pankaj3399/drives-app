@@ -1,0 +1,6 @@
+.sidebar {}
+
+.sidebar.active {
+    /* Styles applied when the sidebar is active */
+    left: 0;
+}
