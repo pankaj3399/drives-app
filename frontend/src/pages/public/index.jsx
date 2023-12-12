@@ -15,7 +15,6 @@ const CustomerView = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     await callCheckDeviceAPI(formData);
-    console.log(checkData)
   };
 
   const handleDownload = async () => {
