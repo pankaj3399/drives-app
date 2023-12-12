@@ -17,10 +17,15 @@ const CustomerView = () => {
     await callCheckDeviceAPI(formData);
   };
 
-  const handleDownload = () => {
-    const content = document.getElementById("pdfContent");
+  const handleDownload = async () => {
+    const visibleContent = document.getElementById("pdfContent");
+    const hiddenContent = document.getElementById("hiddenPdfContent");
+    const mergeContent = `
+      ${hiddenContent.innerHTML}
+      ${visibleContent.innerHTML}
+    `;
 
-    if (content) {
+    if (visibleContent && hiddenContent) {
       const pdfOptions = {
         margin: 10,
         filename: "document.pdf",
@@ -29,7 +34,7 @@ const CustomerView = () => {
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
 
-      html2pdf().from(content).set(pdfOptions).save();
+      html2pdf().from(mergeContent).set(pdfOptions).save();
     }
   };
 
@@ -141,10 +146,38 @@ const CustomerView = () => {
                     Download PDF
                   </button>
                 </div>
+                {/* Hidden content for additional columns */}
+
+                <div id="hiddenPdfContent" style={{
+                  borderRadius: "8px",
+                  overflow: "auto",
+                  color: "white",
+                  display: 'none',
+                }} >
+                  <table style={{ width: "100%", }}>
+                    <thead>
+                      <tr>
+                        <th style={{ color: "white" }}>Order ID</th>
+                        <th style={{ color: "white" }}>Auth Code</th>
+                        <th style={{ color: "white" }}>Progress</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ color: "black" }}>
+                      <tr>
+                        <td>{checkData?.data?.order?._id}</td>
+                        <td>{checkData?.data?.order?.authCode}</td>
+                        <td>{
+                          `${((checkData?.data?.deletedDevices /
+                            (checkData?.data?.totalDevices || 1)) *
+                            100)?.toFixed(2)} %`
+                        }</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
                 <span id="pdfContent">
                   <div
                     style={{
-                      border: "1px solid #ddd",
                       borderRadius: "8px",
                       overflow: "auto",
                       color: "white",
@@ -168,7 +201,6 @@ const CustomerView = () => {
 
                   <div
                     style={{
-                      border: "1px solid #ddd",
                       borderRadius: "8px",
                       overflow: "auto",
                       color: "white",
