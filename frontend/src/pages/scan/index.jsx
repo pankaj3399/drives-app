@@ -144,7 +144,7 @@ const Scans = () => {
               Serial Number
             </label>
             <input
-              type="number"
+              type="text"
               className="form-control"
               id="serialNumber"
               placeholder="Serial Number"
