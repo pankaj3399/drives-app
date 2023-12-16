@@ -21,7 +21,8 @@ const {
     getScansCount,
     getAllScans,
     updateScan,
-    getAllScansSpecificOrder
+    getAllScansSpecificOrder,
+    updateScans
 } = require('../services/scan');
 const {
     getAllCustomers,
@@ -133,6 +134,46 @@ async function updateOrderInfo(req, res) {
         if (!order) {
             return res.status(400).json({ success: false, message: 'Failed to update order info' });
         }
+        const { completionDate } = req.body;
+        if (order && completionDate) {
+            // added deletionDate for other drives 
+            const hardDrives = await getAllScans({ orderId: order._id });
+            const [updatedDrives, user] = await Promise.all([
+                await updateScans(
+                    {
+                        _id: { $in: hardDrives.map(hardDrive => hardDrive._id) },
+                        deletionStatus: { $eq: HardDriveDeletionStatusEnum.NON_STARTED }
+                    },
+                    {
+                        deletionDate: completionDate,
+                        deletionStatus: HardDriveDeletionStatusEnum.DELETED,
+                    }
+                ),
+                await findCustomer({ _id: order.customerId, emailSendStatus: true }),
+            ]);
+            const scans = await getAllScansSpecificOrder(order._id);
+            if (updatedDrives && user && scans.length) {
+                let drivesDeleted = 0;
+                let failedDeletion = 0;
+                for (const scan of scans) {
+                    if (scan.deletionStatus === HardDriveDeletionStatusEnum.DELETED) {
+                        drivesDeleted += 1;
+                    }
+                    if (scan.deletionStatus === HardDriveDeletionStatusEnum.FAILED_DELETION) {
+                        failedDeletion += 1;
+                    }
+                }
+                // send email
+                const emailTemplate = completeOrderEmailTemplate({
+                    customerName: user.name,
+                    orderId: order._id,
+                    totalDrives: scans.length,
+                    drivesDeleted,
+                    failedDeletion,
+                });
+                sendEmail(user.email, 'Order Deletion Done', emailTemplate);
+            }
+        }
         return res.json({ success: true, data: order });
     } catch (error) {
         console.log(error);
@@ -186,18 +227,23 @@ async function addNewScan(req, res) {
             return res.status(422).json({ success: false, message: validation.error.details[0].message });
         }
 
-        const checkValidOrderId = await getSingleOrder({
+        const checkValidOrder = await getSingleOrder({
             _id: req.body.orderId,
             customerId: req.body.customerId,
             completionDate: { $exists: false }
         });
-        if (!checkValidOrderId) {
+        if (!checkValidOrder) {
             return res.status(400).json({ success: false, message: 'Invalid Order Id or order is already completed' });
         }
 
         const checkUniqueSerialNumber = await getAScan({ serialNumber: req.body.serialNumber });
         if (checkUniqueSerialNumber) {
             return res.status(400).json({ success: false, message: 'Please enter unique serial number' });
+        }
+
+        const scans = await getAllScansSpecificOrder(checkValidOrder._id);
+        if (scans.length >= checkValidOrder.devices) {
+            return res.status(400).json({ success: false, message: `Already added ${checkValidOrder.devices} devices` });
         }
 
         const scan = await createAScan(req.body);
@@ -296,7 +342,7 @@ async function dashboardData(req, res) {
         const [customers, scannedDevices, deletedDevices, orders, pendingDevices] = await Promise.all([
             await getCustomersCount({}),
             await getScansCount({}),
-            await getScansCount({ deletionStatus: HardDriveDeletionStatusEnum.DELETED }),
+            await getScansCount({ deletionStatus: { $in: [HardDriveDeletionStatusEnum.DELETED, HardDriveDeletionStatusEnum.FAILED_DELETION] } }),
             await getAllOrderStatusCounts(),
             await getScansCount({ deletionStatus: HardDriveDeletionStatusEnum.NON_STARTED }),
         ]);

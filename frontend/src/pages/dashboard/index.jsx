@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./index.css";
 import { useGetDashboardDataQuery } from "state/api";
 
 const Dashboard = () => {
-  const { data: databaseData, isLoading } = useGetDashboardDataQuery();
+  const { data: databaseData, isLoading, refetch } = useGetDashboardDataQuery();
+
+  useEffect(() => {
+    refetch();
+  }, [databaseData]);
+  
   return (
     <main className="main-container p-5 container-fluid">
       {

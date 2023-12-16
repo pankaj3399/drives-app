@@ -15,6 +15,7 @@ const CustomerView = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     await callCheckDeviceAPI(formData);
+    console.log(checkData)
   };
 
   const handleDownload = async () => {
@@ -44,8 +45,24 @@ const CustomerView = () => {
     }
   }, [checkData, error]);
   return (
-    <>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100vh',
+    }}>
+      {/* Header */}
+      <header style={{ backgroundColor: "#87CEEB", padding: "10px 20px", textAlign: "center", display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <img src="logo.png" width={'60px'} height={'60px'} alt="Logo" />
+        </div>
+      </header>
       <div>
+        <p style={{ margin: '50px' }}>
+          <strong style={{textAlign: 'center'}}>Willkommen bei WipeTrace von Gull-IT</strong>
+          <br />
+          Geben Sie bitte die von Gull-IT Order-ID und Auth Code ein, um den aktuellen Status Ihrer Löschbeauftragung einzusehen.
+          Mit Abschluss des Auftrags erhalten Sie die Möglichkeit, eine Übersicht der gelöschten Seriennummern herunterzuladen.
+        </p>
         <div className="calc container pb-5 mt-5" >
           <form className="row g-3" onSubmit={handleFormSubmit}>
             {errorMessage && (
@@ -147,7 +164,6 @@ const CustomerView = () => {
                   </button>
                 </div>
                 {/* Hidden content for additional columns */}
-
                 <div id="hiddenPdfContent" style={{
                   borderRadius: "8px",
                   overflow: "auto",
@@ -233,7 +249,22 @@ const CustomerView = () => {
 
         </div>
       </div>
-    </>
+
+      {/* Footer */}
+      <footer style={{ backgroundColor: "black", padding: "2px", textAlign: "center", marginTop: 'auto' }}>
+        <p style={{ color: "white", marginTop: '5px' }}>
+          <a href="https://gull-it.de" target="_blank" rel="noopener noreferrer" style={{ color: "white", marginRight: "10px" }}>
+            Link to gull-it.de
+          </a>
+          <a href="https://shop.gull-it.de" target="_blank" rel="noopener noreferrer" style={{ color: "white", marginRight: "10px" }}>
+            Link to shop.gull-it.de
+          </a>
+          <a href="https://gull-it.de/impressum/" target="_blank" rel="noopener noreferrer" style={{ color: "white" }}>
+            Impressum
+          </a>
+        </p>
+      </footer>
+    </div>
   );
 };
 

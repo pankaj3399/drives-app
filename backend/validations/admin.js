@@ -76,7 +76,7 @@ const orderValidation = ({ customerId, devices, collectionDate }) => {
   return { value, error };
 };
 
-const updateOrderValidation = ({ devices, collectionDate }) => {
+const updateOrderValidation = ({ devices, collectionDate, completionDate }) => {
   const schema = Joi.object().keys({
     devices: Joi.number().messages({
       "number.base": `devices should be a type of Number`,
@@ -84,9 +84,12 @@ const updateOrderValidation = ({ devices, collectionDate }) => {
     collectionDate: Joi.date().messages({
       "date.base": `collectionDate should be a type of Date`,
     }),
+    completionDate: Joi.date().allow(null).messages({
+      "date.base": `completionDate should be a type of Date`,
+    }),
   });
 
-  const { value, error } = schema.validate({ devices, collectionDate }, { escapeHtml: true });
+  const { value, error } = schema.validate({ devices, collectionDate, completionDate }, { escapeHtml: true });
   return { value, error };
 };
 
@@ -148,10 +151,10 @@ const updateScanValidation = ({ scanId, status }) => {
       "string.pattern.base": `Invalid scanId format`,
     }),
     status: Joi.string().required().valid(...HardDriveDeletionStatusArray).messages({
-        "string.base": `status should be a type of String`,
-        "any.required": `status is required.`,
-        "any.only": `Invalid paymentMethod. Allowed values: ${HardDriveDeletionStatusArray.join(', ')}`,
-      }),
+      "string.base": `status should be a type of String`,
+      "any.required": `status is required.`,
+      "any.only": `Invalid paymentMethod. Allowed values: ${HardDriveDeletionStatusArray.join(', ')}`,
+    }),
   });
 
   const { value, error } = schema.validate({ scanId, status }, { escapeHtml: true });
