@@ -6,7 +6,6 @@ const Dashboard = () => {
   const { data: databaseData, isLoading, refetch } = useGetDashboardDataQuery();
 
   useEffect(() => {
-    console.log(databaseData)
     refetch();
   }, [databaseData]);
   
