@@ -20,11 +20,18 @@ const Orders = () => {
   });
 
   const handleUpdateOrder = async () => {
-    await callUpdateOrderAPI({
+    let data = {
       devices: formData.devices,
       collectionDate: formData.collectionDate,
       id: formData._id,
-    });
+    };
+    if (formData.completionDate) {
+      data = {
+        ...data,
+        completionDate: formData.completionDate,
+      }
+    }
+    await callUpdateOrderAPI(data);
   };
 
   useEffect(() => {
@@ -47,6 +54,20 @@ const Orders = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleMarkCompletedClick = async (order) => {
+    await callUpdateOrderAPI({
+      id: order._id,
+      completionDate: new Date(),
+    });
+  };
+
+  const handleUnMarkCompletedClick = async (order) => {
+    await callUpdateOrderAPI({
+      id: order._id,
+      completionDate: null,
+    });
+  };
+
   const columns = [
     {
       field: '_id',
@@ -56,12 +77,38 @@ const Orders = () => {
     {
       field: 'customerId',
       headerName: 'Customer',
-      flex: 0.4,
+      flex: 0.6,
     },
     {
       field: 'devices',
       headerName: 'Devices',
+      flex: 0.2,
+    },
+    {
+      field: 'markCompleted',
+      headerName: 'Completed',
       flex: 0.4,
+      renderCell: (params) => (
+        <>
+          {
+            params?.row?.completionDate ? <Button
+              variant="contained"
+              color="warning"
+              size="medium"
+              onClick={() => handleUnMarkCompletedClick(params.row)}
+            >
+              Mark as Uncompleted
+            </Button> : <Button
+              variant="contained"
+              color="success"
+              size="medium"
+              onClick={() => handleMarkCompletedClick(params.row)}
+            >
+              Mark as Completed
+            </Button>
+          }
+        </>
+      ),
     },
     {
       field: 'collectionDate',
@@ -71,7 +118,7 @@ const Orders = () => {
     {
       field: 'authCode',
       headerName: 'Auth Code',
-      flex: 0.4,
+      flex: 0.3,
     },
     {
       field: 'edit',
@@ -92,7 +139,6 @@ const Orders = () => {
 
   const onEmailChangeHandler = (e) => {
     const partialEmail = e.target.value.toLowerCase();
-  
     const filteredOrders = orders.filter((order) =>
       order.customerId.toLowerCase().includes(partialEmail)
     );
@@ -110,6 +156,7 @@ const Orders = () => {
           ...order,
           customerId,
           collectionDate: order?.collectionDate?.split('T')[0],
+          completionDate: order?.completionDate?.split('T')[0],
         })
       }
       setOrders(newOrders);
@@ -206,6 +253,7 @@ const Orders = () => {
               />
               <TextField
                 label="Collection date"
+                type="date"
                 value={formData.collectionDate}
                 fullWidth
                 margin="normal"
@@ -215,16 +263,28 @@ const Orders = () => {
                   setFormData({ ...formData, collectionDate: e.target.value });
                 }}
               />
-              {
-                !isUpdateLoading && (<Button variant="contained" color="success" onClick={handleUpdateOrder}>
+              <TextField
+                label="Completion date"
+                type="date"
+                value={formData.completionDate}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+                onChange={(e) => {
+                  setFormData({ ...formData, completionDate: e.target.value });
+                }}
+              />
+              {!isUpdateLoading && (
+                <Button variant="contained" color="success" onClick={handleUpdateOrder}>
                   Update Order
-                </Button>)
-              }
-
+                </Button>
+              )}
             </form>
           )}
         </DialogContent>
       </Dialog>
+
     </Box>
   );
 };

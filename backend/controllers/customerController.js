@@ -16,12 +16,11 @@ async function checkDevice(req, res) {
         return res.status(400).json({ success: false, message: 'Could not find the device info.' });
     }
 
-    const [deletedDevices, totalDevices, drives] = await Promise.all([
-        await getScansCount({ deletionStatus: HardDriveDeletionStatusEnum.DELETED, orderId: order._id }),
-        await getScansCount({ orderId: order._id }),
+    const [deletedDevices, drives] = await Promise.all([
+        await getScansCount({ deletionStatus: { $in: [HardDriveDeletionStatusEnum.DELETED, HardDriveDeletionStatusEnum.FAILED_DELETION] }, orderId: order._id }),
         await getAllScansSpecificOrder(order._id),
     ])
-    return res.status(200).json({ success: true, data: { order, deletedDevices, totalDevices, drives } });
+    return res.status(200).json({ success: true, data: { order, deletedDevices, totalDevices: order.devices, drives } });
 }
 
 module.exports = { checkDevice };

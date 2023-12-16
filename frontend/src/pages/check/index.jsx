@@ -83,6 +83,7 @@ const Check = () => {
           <tr>
             <th scope="col">Serial Number</th>
             <th scope="col">Deletion Status</th>
+            <th scope="col">Customer</th>
             <th scope="col">Order Id</th>
           </tr>
         </thead>
@@ -112,9 +113,29 @@ const Check = () => {
                           </>
                         }
                       </>
-                    ) : scan.deletionStatus
+                    ) : <span style={{ color: scan.deletionStatus === 'deleted' ? 'green' : 'red' }}>
+                      {scan.deletionStatus}
+                      <span style={{ margin: '0px 10px' }}>
+                        {
+                          scan.deletionStatus !== 'deleted' ?
+                            <Button onClick={(e) => {
+                              e.preventDefault();
+                              handleDeleteStatus(scan._id, 'deleted');
+                            }} variant="contained" color="warning" className="me-2">
+                              Successfully deleted
+                            </Button>
+                            : <Button onClick={(e) => {
+                              e.preventDefault();
+                              handleDeleteStatus(scan._id, 'failed deletion');
+                            }} variant="contained" color="warning" className="me-2">
+                              Deletion failed
+                            </Button>
+                        }
+                      </span>
+                    </span>
                     }
                   </td>
+                  <td>{scan?.customerInfo?.name}</td>
                   <td>{scan.orderId}</td>
                 </tr>
               ))}

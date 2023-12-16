@@ -11,7 +11,59 @@ const createAScan = async (data) => {
 
 const getAScan = async (query) => {
     try {
-        return await HardDriveModel.findOne(query).lean();
+        const scans = await HardDriveModel.aggregate([
+            {
+                $match: query
+            },
+            {
+                $lookup: {
+                    from: 'orders',
+                    localField: 'orderId',
+                    foreignField: '_id',
+                    as: 'orderInfo'
+                }
+            },
+            {
+                $unwind: '$orderInfo'
+            },
+            {
+                $lookup: {
+                    from: 'customers',
+                    localField: 'orderInfo.customerId',
+                    foreignField: '_id',
+                    as: 'customerInfo'
+                }
+            },
+            {
+                $unwind: '$customerInfo'
+            },
+            {
+                $project: {
+                    _id: 1,
+                    orderId: 1,
+                    serialNumber: 1,
+                    deletionStatus: 1,
+                    createdAt: 1,
+                    orderInfo: {
+                        devices: '$orderInfo.devices',
+                        collectionDate: '$orderInfo.collectionDate',
+                        authCode: '$orderInfo.authCode',
+                    },
+                    customerInfo: {
+                        company: '$customerInfo.company',
+                        name: '$customerInfo.name',
+                        address: '$customerInfo.address',
+                        email: '$customerInfo.email',
+                    }
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            }
+        ]);
+        return scans?.[0];
     } catch (error) {
         console.log(error);
         return null;
@@ -69,7 +121,6 @@ const getAllScans = async () => {
                 }
             }
         ]);
-
     } catch (error) {
         console.log(error);
         return null;
@@ -95,6 +146,15 @@ const updateScan = async (query, data) => {
     }
 }
 
+const updateScans = async (query, data) => {
+    try {
+        return await HardDriveModel.updateMany(query, { $set: data }, { new: true }).lean();
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
 const getAllScansSpecificOrder = async (orderId) => {
     try {
         return await HardDriveModel.find({ orderId }).lean();
@@ -105,4 +165,4 @@ const getAllScansSpecificOrder = async (orderId) => {
 }
 
 
-module.exports = { createAScan, getScansCount, getAScan, getAllScans, updateScan, getAllScansSpecificOrder }
+module.exports = { createAScan, getScansCount, getAScan, getAllScans, updateScan, getAllScansSpecificOrder, updateScans }

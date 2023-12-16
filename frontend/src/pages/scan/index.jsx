@@ -13,7 +13,7 @@ const columns = [
   {
     field: 'orderId',
     headerName: 'orderId',
-    flex: 0.4,
+    flex: 0.5,
   },
   {
     field: 'customer',
@@ -31,10 +31,8 @@ const Scans = () => {
   const theme = useTheme();
   const [errorMessage, setErrorMessage] = useState('');
   const [customerId, setCustomerId] = useState('');
-  const [formData, setFormData] = useState({
-    orderId: "",
-    serialNumber: "",
-  });
+  const [orderId, setOrderId] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
   const [scans, setScans] = useState([]);
   const { data: scansData, isLoading, refetch } = useGetScansQuery();
   const { data: orderData, isLoading: orderLoading } = useGetOrdersQuery({
@@ -66,8 +64,9 @@ const Scans = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     await callAddScanAPI({
-      ...formData,
+      orderId,
       customerId,
+      serialNumber
     });
   };
   useEffect(() => {
@@ -75,10 +74,7 @@ const Scans = () => {
       setErrorMessage(error?.data?.message)
     } else if (data) {
       refetch();
-      setFormData({
-        orderId: "",
-        serialNumber: "",
-      });
+      setSerialNumber('');
       setErrorMessage('')
     }
   }, [data, error]);
@@ -104,7 +100,6 @@ const Scans = () => {
               options={customersData?.data?.customers || []}
               loading={customersLoading}
               getOptionLabel={(option) => option.email || option.name}
-              value={formData.customer}
               onChange={(event, newValue) => {
                 setCustomerId(newValue?._id || '')
                 setErrorMessage('');
@@ -121,16 +116,14 @@ const Scans = () => {
               id="orderId"
               style={{ padding: '14px 10px', marginTop: '2px' }}
               required
-              value={formData.orderId}
+              value={orderId}
               onChange={(e) => {
-                setFormData({ ...formData, orderId: e.target.value });
+                setOrderId(e.target.value);
                 setErrorMessage('');
               }}
             >
               <option value="" disabled>Select a order id</option>
-              {orderLoading || !customerId ? (
-                <option>Loading orders....</option>
-              ) : (
+              {orderLoading || !customerId ? null : (
                 orderData?.data?.orders?.map((order) => (
                   <option key={order._id} value={order._id}>
                     {order._id}
@@ -150,9 +143,9 @@ const Scans = () => {
               placeholder="Serial Number"
               style={{ padding: '25px 10px', marginTop: '15px' }}
               required
-              value={formData.serialNumber}
+              value={serialNumber}
               onChange={(e) => {
-                setFormData({ ...formData, serialNumber: e.target.value });
+                setSerialNumber(e.target.value);
                 setErrorMessage('');
               }}
             />

@@ -75,9 +75,6 @@ const Login = () => {
         </form>
         <div className="text-center" style={{ color: 'black' }}>
           Don't have an account?{" "}
-          <NavLink to="/signup">
-            <b className="hint-text">Sign Up</b>
-          </NavLink>
         </div>
       </div>
     </>
