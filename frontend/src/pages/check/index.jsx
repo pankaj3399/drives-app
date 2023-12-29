@@ -1,10 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress } from '@mui/material';
-import { useCheckScanQuery, useUpdateScanDeletionMutation } from 'state/api';
+import { Box, Button, CircularProgress, useTheme } from '@mui/material';
+import { useCheckScanQuery, useGetScansQuery, useUpdateScanDeletionMutation } from 'state/api';
 import Header from 'components/Header';
+import { DataGrid } from '@mui/x-data-grid';
 import './index.css';
+const columns = [
+  {
+    field: 'serialNumber',
+    headerName: 'serialNumber',
+    flex: 0.4,
+  },
+  {
+    field: 'orderId',
+    headerName: 'orderId',
+    flex: 0.5,
+  },
+  {
+    field: 'customer',
+    headerName: 'Customer',
+    flex: 0.4,
+  },
+  {
+    field: 'deletionStatus',
+    headerName: 'Deletion status',
+    flex: 0.4,
+  },
+];
 
 const Check = () => {
+  const theme = useTheme();
   const [errorMessage, setErrorMessage] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
   const [scanData, setScanData] = useState([]);
@@ -14,6 +38,25 @@ const Check = () => {
     enabled: false,
   });
   const [callUpdateScanAPI, { error: updateError, isLoading: updateLoading }] = useUpdateScanDeletionMutation();
+  const [scans, setScans] = useState([]);
+  const { data: scansData, isLoading: isScansLoading, refetch: refetchScansData } = useGetScansQuery();
+
+
+  useEffect(() => {
+    refetchScansData();
+    if (scansData?.data) {
+      const newScans = [];
+      for (let index = 0, len = scansData?.data.length; index < len; index++) {
+        const scan = scansData?.data[index];
+        const customer = scan?.customerInfo?.email || scan?.customerInfo?.name;
+        newScans.push({
+          ...scan,
+          customer,
+        })
+      }
+      setScans(newScans);
+    }
+  }, [scansData]);
 
   const handleSearch = async () => {
     try {
@@ -143,6 +186,43 @@ const Check = () => {
           )}
         </tbody>
       </table>
+      <div className='mt-2 pt-2 pb-0'>
+          <label>List of Scans</label>
+        </div>
+        <Box
+          mt="16px"
+          height="75vh"
+          sx={{
+            '& .MuiDataGrid-root': {
+              border: 'none',
+            },
+            '& .MuiDataGrid-cell': {
+              borderBottom: 'none',
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: theme.palette.background.alt,
+              color: theme.palette.secondary[100],
+              borderBottom: 'none',
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              backgroundColor: theme.palette.primary.light,
+            },
+            '& .MuiDataGrid-footerContainer': {
+              backgroundColor: theme.palette.background.alt,
+              color: theme.palette.secondary[100],
+              borderTop: 'none',
+            },
+            '& .MuiDataGrid-toolbarContainer .MuiButton-text': {
+              color: `${theme.palette.secondary[200]} !important`,
+            },
+          }}>
+          <DataGrid
+            loading={isLoading || !scans}
+            getRowId={(row) => row._id}
+            rows={scans || []}
+            columns={columns}
+          />
+        </Box>
     </Box>
   );
 };

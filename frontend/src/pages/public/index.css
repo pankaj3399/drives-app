@@ -70,3 +70,6 @@ select {
 tbody tr {
     margin-bottom: 10px;
 }
+#hiddenPdfContent2 {
+    display: none;
+}

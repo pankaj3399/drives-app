@@ -3,7 +3,7 @@ import { Box, Button, Dialog, DialogContent, DialogTitle, TextField, useTheme } 
 import Header from 'components/Header';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
-import { useGetOrdersQuery, useUpdateOrderMutation } from 'state/api';
+import { useGetOrdersQuery, useUpdateOrderMutation, useSendEmailMutation } from 'state/api';
 
 const Orders = () => {
   const theme = useTheme();
@@ -15,6 +15,7 @@ const Orders = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const [callUpdateOrderAPI, { data: updatedData, error, isLoading: isUpdateLoading }] = useUpdateOrderMutation();
+  const [callSendEmailMutation] = useSendEmailMutation();
   const { data, isLoading, refetch } = useGetOrdersQuery({
     page: 1
   });
@@ -68,6 +69,11 @@ const Orders = () => {
     });
   };
 
+  const handleSendEmail = async (order) => {
+    console.log('hi', order);
+    await callSendEmailMutation({orderId: order._id, customerId: order.customer._id});
+  };
+
   const columns = [
     {
       field: '_id',
@@ -96,6 +102,7 @@ const Orders = () => {
               color="warning"
               size="medium"
               onClick={() => handleUnMarkCompletedClick(params.row)}
+              // sx={{whiteSpace: 'break-spaces'}}
             >
               Mark as Uncompleted
             </Button> : <Button
@@ -103,8 +110,30 @@ const Orders = () => {
               color="success"
               size="medium"
               onClick={() => handleMarkCompletedClick(params.row)}
+              // sx={{whiteSpace: 'break-spaces'}}
             >
               Mark as Completed
+            </Button>
+          }
+        </>
+      ),
+    },
+    {
+      field: 'sendEmail',
+      headerName: 'Send Email',
+      flex: 0.4,
+      renderCell: (params) => (
+        <>
+          {
+             <Button
+              variant="contained"
+              color="success"
+              size="medium"
+              onClick={() => handleSendEmail(params.row)}
+              disabled={!params?.row?.completionDate}
+              // sx={{whiteSpace: 'break-spaces'}}
+            >
+              Send Email
             </Button>
           }
         </>

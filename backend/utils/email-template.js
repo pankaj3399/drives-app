@@ -39,10 +39,12 @@ const completeOrderEmailTemplate = ({
           <h1>Order Completion</h1>
           <p>Hi ${customerName},</p>
           <p>Your order with Order ID: ${orderId} has been successfully completed.</p>
-          <p>Total drives: ${totalDrives}, deleted: ${drivesDeleted}, failed deletion: ${failedDeletion}</p>
+          <p>Total drives: ${totalDrives}</p>
+          <p>Succesfully Deleted:${drivesDeleted} </p>
+          <p>Failed Deletion:${failedDeletion}</p>
         </div>
       </body>
     </html>
-   `
-}
+   `;
+};
 module.exports = completeOrderEmailTemplate;

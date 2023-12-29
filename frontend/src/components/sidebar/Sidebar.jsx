@@ -48,10 +48,10 @@ const navItems = [
     text: "Check",
     icon: <PointOfSaleOutlined />,
   },
-  {
-    text: "Setting",
-    icon: <SettingsIcon />,
-  },
+  // {
+  //   text: "Setting",
+  //   icon: <SettingsIcon />,
+  // },
 ];
 
 const Sidebar = ({

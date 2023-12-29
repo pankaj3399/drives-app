@@ -5,12 +5,14 @@ const routes = require("./routes");
 const connectToDatabase = require("./internal/db.init");
 const projectConfig = require("./config");
 const startingMiddleware = require("./middlewares/starting.middleware");
+const scheduleCron = require("./utils/cron-job");
 
 const bootstrap = async () => {
   const app = express();
 
   startingMiddleware(app);
   await connectToDatabase();
+  scheduleCron();
 
   // Set trust proxy to enable 'X-Forwarded-For' header
   app.set("trust proxy", true);
